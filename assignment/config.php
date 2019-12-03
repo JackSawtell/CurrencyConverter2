@@ -1,8 +1,11 @@
 <?php
 @date_default_timezone_set("GMT"); 
+
 # params array
 define('PARAMS', array('to', 'from', 'amnt', 'format'));
+
 define('FORMAT_CHECK',array('xml', 'json'));
+
 # error_hash to hold error numbers and messages
 define ('ERROR_HASH', array(
 	1000 => 'Required parameter is missing',
