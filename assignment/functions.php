@@ -71,6 +71,7 @@ function create_currencies(){
 
     $writer = new XMLWriter();
     $writer->openURI('currencies.xml');
+    $writer->setIndent(true);
     $writer->startDocument("1.0");
     $writer->startElement("currencies");
 
@@ -144,7 +145,7 @@ function response_xml (&$reply) {
 	$reply['from_loc'] = trim(preg_replace('/\s+/', ' ', $reply['from_loc'])); 
 	$reply['to_loc'] = trim(preg_replace('/\s+/', ' ', $reply['to_loc'])); 
 	
-	$resp_xml = <<<__xml
+	$reply_xml = <<<__xml
      <conv>
        <at>{$reply['date_time']}</at>
        <rate>{$reply['rate']}</rate>
