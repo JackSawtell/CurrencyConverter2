@@ -27,6 +27,7 @@ function create_rates(){
     $writer->startDocument("1.0");
     $writer->startElement("currencies");
     $writer->writeAttribute('base', 'GBP');
+    $writer->writeAttribute('timestamp', $rates->timestamp);
     # for every currency code in our array
     # select its parent + subnodes and write
     # them out after tidying up the countries list
@@ -38,11 +39,9 @@ function create_rates(){
             $writer->startElement("currency");
                 $writer->startElement("code");
                 $writer->writeAttribute('rate', $rates->rates->$code * $gbp_rate);
-                $writer->writeAttribute('timestamp', $rates->timestamp);
                 $writer->writeAttribute('live', $live_array[$code]);
                 $writer->text($code);
                 $writer->endElement();
-            
                 $writer->startElement("cname");
                 $writer->text($nodes[0]->cname);
                 $writer->endElement();
@@ -138,5 +137,31 @@ function generate_error($eno, $format='xml') {
 		header('Content-type: text/xml');
 		return $xml;
 	}
+}
+
+function response_xml (&$reply) {
+	
+	$reply['from_loc'] = trim(preg_replace('/\s+/', ' ', $reply['from_loc'])); 
+	$reply['to_loc'] = trim(preg_replace('/\s+/', ' ', $reply['to_loc'])); 
+	
+	$resp_xml = <<<__xml
+     <conv>
+       <at>{$reply['date_time']}</at>
+       <rate>{$reply['rate']}</rate>
+       <from>
+          <code>{$reply['from_code']}</code>
+          <curr>{$reply['from_curr']}</curr>
+          <loc>{$reply['from_loc']}</loc>
+          <amnt>{$reply['from_amnt']}</amnt>
+       </from>
+       <to>
+          <code>{$reply['to_code']}</code>
+          <curr>{$reply['to_curr']}</curr>
+          <loc>{$reply['to_loc']}</loc>
+          <amnt>{$reply['to_amnt']}</amnt>
+       </to>
+     </conv>
+__xml;
+return $reply_xml;
 }
 ?>
