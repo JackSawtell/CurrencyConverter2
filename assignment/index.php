@@ -44,33 +44,35 @@ if (!in_array( $_GET['format'], FORMAT_CHECK)) {
 }
 
 
+# load the rates file as a simple xml object
+$xml=simplexml_load_file('rates.xml');
+
 # xpath the codes of the rates which are live
+$rates = $xml->xpath("//rate[@live='1']/@code");
+
+# create a php array of these codes
+foreach ($rates as $key=>$val) {
+	$codes[] = (string)$val;
+}
+
 #$from = $_GET['from'];
-#
+$from_rates = $xml->xpath("//code[.='$from']/parent::*");
 #$from_currency = (string)$rates[0]->cname;
 #$from_location = (string)$rates[0]->cntry;
 #$to = $_GET['to'];
-#$to_rates = $xml->xpath("//code[.='$to']/parent::*");
+$to_rates = $xml->xpath("//code[.='$to']/parent::*");
 #$to_currency = (string)$rates[0]->cname;
 #$to_location = (string)$rates[0]->cntry;
 # get the timestamp
 #$pull_timestamp =(string)$rates[0]->at;
 
-
-
-
-# load the rates file as a simple xml object
-$xml=simplexml_load_file('rates.xml');
-# xpath the codes of the rates which are live
-$rates = $xml->xpath("//rate[@live='1']/@code");
-
-# create a php array of these codes
-foreach ($rates as $key=>$val) {$codes[] =(string) $val;}
+var_dump($from_rates);
 
 # printing the data
 # get the to and from rates
-$fr = $xml->xpath("//code[@rate='" . $_GET['from'] . "']/@rate")[0]['rate'];
-$tr = $xml->xpath("//code[@rate='" . $_GET['to'] . "']/@rate")[0]['rate'];
+#$fr = $xml->xpath("//rate[@code='" . $_GET['from'] . "']/@rate")[0]['rate'];
+#$tr = $xml->xpath("//rate[@code='" . $_GET['to'] . "']/@rate")[0]['rate'];
+
 # if to and from are the same - set rate to 1.00
 if ($_GET['from']==$_GET['to']) {
 	$rate = 1.00;
@@ -123,5 +125,4 @@ else {
 }
 exit;
 
-echo 'donelll';
 ?>
