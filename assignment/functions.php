@@ -1,13 +1,13 @@
 <?php
 function create_rates(){
-    # pull the rates json file (USE YOUR OWN API KEY)
+    # pull the rates json file
     $json_rates = file_get_contents('http://data.fixer.io/api/latest?access_key=e3826543064ffb43cf65f36db1acf611')
-                or die("Error: Cannot load JSON file from fixer");
-    #decode the json to a php object
+                    or die("Error: Cannot load JSON file from fixer");
+    # decode the json to a php object
     $rates = json_decode($json_rates);
-    $timestamp = $rates->timestamp;
+    # $timestamp = $rates->timestamp;
     
-    // code help from c23-day
+    # code help from c23-day
     foreach($rates->rates as $live_rates=>$val){
         if (in_array($live_rates, DEFAULT_CODES) ){
             $live_array[$live_rates] = 1;
@@ -38,6 +38,7 @@ function create_rates(){
             $writer->startElement("currency");
                 $writer->startElement("code");
                 $writer->writeAttribute('rate', $rates->rates->$code * $gbp_rate);
+                $writer->writeAttribute('timestamp', $rates->timestamp);
                 $writer->writeAttribute('live', $live_array[$code]);
                 $writer->text($code);
                 $writer->endElement();
@@ -60,12 +61,14 @@ function create_rates(){
     }
     $writer->endDocument();
     $writer->flush();
+    
     echo "All done ....!";
 }
 
 function create_currencies(){
     # pull the ISO currencies file into a simplexml object
-    $xml=simplexml_load_file('http://www.currency-iso.org/dam/downloads/lists/list_one.xml') or die("Error: Cannot create object");
+    $xml = simplexml_load_file('http://www.currency-iso.org/dam/downloads/lists/list_one.xml') 
+            or die("Error: Cannot create object");
 
     $writer = new XMLWriter();
     $writer->openURI('currencies.xml');

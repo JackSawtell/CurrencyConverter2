@@ -16,12 +16,12 @@ if (!file_exists('rates.xml')) {
 	exit;
 }
 
-# ensure PARAM values match the keys in $GET
+# check PARAM values match the keys in $GET
 if (count(array_intersect(PARAMS, array_keys($_GET))) < 4) {
     echo generate_error(1000, $_GET['format']); 
     exit();
 }
-# ensure no extra params
+# show error if there are to many params
 if (count($_GET) > 4) {
 	echo generate_error(1100, $_GET['format']); 
 	exit();
@@ -56,6 +56,10 @@ $to = $_GET['to'];
 $to_rates = $xml->xpath("//code[.='$to']/parent::*");
 $to_currency = (string)$rates[0]->cname;
 $to_location = (string)$rates[0]->cntry;
+
+# get the timestamp
+# $timestamp = (string)$rates[0]->at;
+
 
 
 # create a php array of these codes
