@@ -26,6 +26,39 @@ if (count($_GET) > 4) {
 	echo generate_error(1100, $_GET['format']); 
 	exit();
 }
+
+
+# check for allowed format values
+if (!in_array( $_GET['format'], FORMAT_CHECK)) {
+	echo generate_error(1400);
+	exit;
+}
+
+
+
+#$from = $_GET['from'];
+#$from_rates = $xml->xpath("//code[.='$from']/parent::*");
+#$from_currency = (string)$rates[0]->cname;
+#$from_location = (string)$rates[0]->cntry;
+#$to = $_GET['to'];
+#$to_rates = $xml->xpath("//code[.='$to']/parent::*");
+#$to_currency = (string)$rates[0]->cname;
+#$to_location = (string)$rates[0]->cntry;
+# get the timestamp
+#$pull_timestamp =(string)$rates[0]->at;
+
+# load the rates file as a simple xml object
+$xml = simplexml_load_file('rates.xml');
+
+# xpath the codes of the rates which are live
+# changing to fix hopefully
+$rates = $xml->xpath("//code[@live='1']");
+
+# create a php array of these codes
+foreach ($rates as $key=>$val) {
+	$codes[] = (string)$val;
+}
+
 # $to and $from are not recognized currencies
 if (!in_array($_GET['to'], DEFAULT_CODES) || !in_array($_GET['from'],DEFAULT_CODES)) {
     echo generate_error(1200, $_GET['format']);
@@ -37,42 +70,40 @@ if (!preg_match('/^\d+(\.\d{1,2})?$/', $_GET['amnt'])) {
 	exit;
 }
 
-# check for allowed format values
-if (!in_array( $_GET['format'], FORMAT_CHECK)) {
-	echo generate_error(1400);
-	exit;
-}
-
-
-# load the rates file as a simple xml object
-$xml=simplexml_load_file('rates.xml');
-
-# xpath the codes of the rates which are live
-$rates = $xml->xpath("//rate[@live='1']/@code");
-
-# create a php array of these codes
-foreach ($rates as $key=>$val) {
-	$codes[] = (string)$val;
-}
-
-#$from = $_GET['from'];
-$from_rates = $xml->xpath("//code[.='$from']/parent::*");
-#$from_currency = (string)$rates[0]->cname;
-#$from_location = (string)$rates[0]->cntry;
-#$to = $_GET['to'];
-$to_rates = $xml->xpath("//code[.='$to']/parent::*");
-#$to_currency = (string)$rates[0]->cname;
-#$to_location = (string)$rates[0]->cntry;
-# get the timestamp
-#$pull_timestamp =(string)$rates[0]->at;
-
-var_dump($from_rates);
-
 # printing the data
 # get the to and from rates
-#$fr = $xml->xpath("//rate[@code='" . $_GET['from'] . "']/@rate")[0]['rate'];
-#$tr = $xml->xpath("//rate[@code='" . $_GET['to'] . "']/@rate")[0]['rate'];
+#'" . $_GET['from'] . "'
+$from = $_GET['from'];
+$to = $_GET['to'];
 
+
+foreach ($codes as $code){
+	if ($code == $from){
+		
+		echo $code;
+		$fr = $xml->xpath("//currency//code['" . $from . "']/@rate")[0]['rate'];
+		echo $fr;
+		print_r($fr);
+
+	}
+	
+}
+
+foreach ($codes as $code){
+	if ($code == $to){
+		
+		echo $code;
+		$tr = $xml->xpath("//currency[@code='" . $to . "']/@rate")[0]['rate'];
+		echo $tr;
+
+	}
+	
+}
+
+
+print_r($codes);
+#print_r($fr);
+#print_r($tr);
 # if to and from are the same - set rate to 1.00
 if ($_GET['from']==$_GET['to']) {
 	$rate = 1.00;
@@ -80,7 +111,7 @@ if ($_GET['from']==$_GET['to']) {
 }
 else {
 	# calculate relative conversion rate
-	$rate = floatval($tr) / floatval($fr);
+	$rate = floatval($fr) / floatval($tr);
 	
 	# calculate the conversion
 	$conv = $rate * $_GET['amnt'];
@@ -90,10 +121,9 @@ else {
 $curr = simplexml_load_file('currencies.xml');
 
 #get the timestamp (ts) from the rates file & format it
-$reply['date_time'] = date('d M Y H:i', (string) $xml->xpath("/rates/@ts")[0]);
+$reply['date_time'] = date('d M Y H:i', floatval($xml->xpath("/currencies[@timestamp]")[0]));
 
 # get the rate
-$rates = $xml->xpath("//code[.='$from']/parent::*");
 $reply['rate'] = $rate;
 
 $reply['from_code'] = $_GET['from'];
