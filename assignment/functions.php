@@ -64,6 +64,8 @@ function create_rates(){
     echo "All done ....!";
 }
 
+
+
 function create_currencies(){
     # pull the ISO currencies file into a simplexml object
     $xml = simplexml_load_file('http://www.currency-iso.org/dam/downloads/lists/list_one.xml') 
@@ -117,8 +119,9 @@ function create_currencies(){
 
     $writer->endDocument();
     $writer->flush();
-    echo "Done ....!";
 }
+
+
 
 function generate_error($eno, $format='xml') {
 	$msg = ERROR_HASH[$eno];
@@ -140,7 +143,10 @@ function generate_error($eno, $format='xml') {
 	}
 }
 
-function response_xml (&$reply) {
+
+
+
+function response_xml(&$reply) {
 	
 	$reply['from_loc'] = trim(preg_replace('/\s+/', ' ', $reply['from_loc'])); 
 	$reply['to_loc'] = trim(preg_replace('/\s+/', ' ', $reply['to_loc'])); 
